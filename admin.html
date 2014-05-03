@@ -1,0 +1,74 @@
+<!-- index.html -->
+<!doctype html>
+
+<!-- ASSIGN OUR ANGULAR MODULE -->
+<html ng-app="evergreenDoc">
+<head>
+	<!-- META -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
+
+	<title>Evergreen Doctor</title>
+
+	<!-- SCROLLS -->
+	<link rel="stylesheet" href="css/bootstrap.min.css"><!-- load bootstrap -->
+	<link rel="stylesheet" href="css/sb-admin.css"><!-- load bootstrap -->
+	<link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
+
+
+
+	<!-- SPELLS -->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><!-- load jquery -->
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script><!-- load angular -->
+	<script src="core.js"></script>
+
+</head>
+<!-- SET THE CONTROLLER AND GET ALL TODOS -->
+<body ng-controller="mainController">
+
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	    <!-- Brand and toggle get grouped for better mobile display -->
+	    <div class="navbar-header">
+	     
+	      <a class="navbar-brand" href="index.html"><i class="fa fa-user-md"></i> EvergreenDoc</a>
+	    </div>
+
+        <ul class="nav navbar-nav navbar-right navbar-user">
+            <li>
+              <a href="#" ></i> Current Queue <span class="badge">{{count}}</span></a>
+              
+            </li>
+           
+           
+          </ul>
+           
+        
+    </nav>
+	<div id="page-wrapper">
+		 	<table class="table table-bordered table-hover table-striped tablesorter">
+                <thead>
+                  <tr>
+                  
+                    <th>Initial Nurse Review </th>
+                    <th>Procedure Room</th>
+                    <th>Post Procedure Room</th>
+                  </tr>
+                </thead>
+                <tbody>
+                   <tr  >
+                   		<td><li class="items" ng-repeat="(key, patient) in nurse" ng-class="{emergency: patient.emergency == true}">
+                   		<h2>{{patient.patient_id}}</h2></li></td>
+	                  <td><li class="items" ng-repeat="(key, patient) in operating" ng-class="{emergency: patient.emergency == true}">
+                   		<h2>{{patient.patient_id}}</h2></li></td>
+                   		 <td><li class="items" ng-repeat="(key, patient) in recovery" ng-class="{emergency: patient.emergency == true}">
+                   		<h2>{{patient.patient_id}}</h2></li></td>
+                  </tr>
+                </tbody>
+			</table>
+	</div>		
+
+
+	<script src="lib/bootstrap.js"></script><!-- load angular -->
+
+</body>
+</html>
