@@ -80,7 +80,9 @@ $app->get('/getAll', function() use ($app, $db){
 
     $response['tags'] = $results;
 
-    $sql = "SELECT * FROM users";
+    //$sql = "SELECT DISTINCT on user * FROM users ORDER BY time DESC";
+        $sql = " SELECT * FROM users WHERE id IN (SELECT MAX(id) FROM users GROUP BY user)";
+
     $query = $db->prepare($sql);
     $query->execute();
 
