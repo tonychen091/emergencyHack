@@ -153,11 +153,13 @@ $app->post('/watchupdate', function() use ($app, $db){
         $query->execute();
 
         $noteString = "";
+        $noteTitle = "";
         while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
-           $noteString.= "- [".$row['type']."] ".$row['note']."\n ";
+            $noteTitle = $row['address'];
+            $noteString.= "- [".$row['type']."] ".$row['note']."\n ";
         }
         // send watch response to indicate new custom tags
-        $response = json_encode(array("update"=>1, "note"=>$noteString));
+        $response = json_encode(array("update"=>1, "title"=> $noteTitle, "note"=>$noteString));
         echo $response;
     
 
