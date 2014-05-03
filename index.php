@@ -61,6 +61,7 @@ $app->post('/createNote', function() use ($app, $db){
     $insert = $db->prepare($sql);
     $insert->execute(array(":latitude"=>$latitude, ":longitude"=>$longitude, ":type"=>$type, ":note"=>$note, ":address"=>$address));
 
+    echo "Successfully create tag";
 
 });
 
@@ -100,6 +101,10 @@ $app->post('/watchupdate', function() use ($app, $db){
     $longitude = $_POST['longitude'];
     $user = $_POST['user'];
 
+    if(isset($_POST['force'])){
+        $manual = True;
+    }
+
     $unixTime = Time();
 
    
@@ -109,10 +114,14 @@ $app->post('/watchupdate', function() use ($app, $db){
     $query = $db->prepare($sql);
     $query->execute(array(":user"=>$user));
 
+
+
     $results = $query->fetch(PDO::FETCH_ASSOC);
 
     // Checks if the user's location has changed
-    if (abs($results['latitude']-$latitude) > 0.01 || abs($results['longitude'] - $longitude) > 0.01){
+    // 
+    // Needs to be a smaller range potentially
+    if (abs($results['latitude']-$latitude) > 0.01 || abs($results['longitude'] - $longitude) > 0.01 || $manual){
 
         // create new entry into users table
         $sql = "INSERT INTO users (user, latitude, longitude, time) VALUES (:user, :latitude, :longitude, :time)";
@@ -120,11 +129,15 @@ $app->post('/watchupdate', function() use ($app, $db){
         $insert->execute(array(":user"=>$user, ":latitude"=>$latitude, ":longitude"=>$longitude, ":time"=>$unixTime));
 
        
+        //needs to be about 0.001 for a building
+
         $highLat = $latitude+1.01;
         $lowLat = $latitude-1.01;
 
         $highLong = $longitude+1.01;
         $lowLong = $longitude-1.01;
+
+
 
         //return tags within a radius
         $sql = "SELECT * FROM tags WHERE latitude BETWEEN ".$lowLat." AND ".$highLat
