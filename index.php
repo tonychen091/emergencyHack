@@ -50,7 +50,10 @@ $app->post('/createNote', function() use ($app, $db){
 
     var_dump($res, true);
 
-    $road = $res->address->road;
+    
+        $road = $res->address->road;
+  
+    
 
     $city = $res->address->city;
 
@@ -127,7 +130,7 @@ $app->post('/watchupdate', function() use ($app, $db){
     // Checks if the user's location has changed
     // 
     // Needs to be a smaller range potentially
-    if (abs($results['latitude']-$latitude) > 0.01 || abs($results['longitude'] - $longitude) > 0.01 || $manual){
+    if (true){
 
         // create new entry into users table
         $sql = "INSERT INTO users (user, latitude, longitude, time) VALUES (:user, :latitude, :longitude, :time)";
