@@ -100,7 +100,6 @@ $app->post('/watchupdate', function() use ($app, $db){
     $latitude = $_POST['latitude'];
     $longitude = $_POST['longitude'];
     $user = $_POST['user'];
-    var_dump($_POST['force']);
     if($_POST['force'] == "true"){
         $manual = True;
     }
