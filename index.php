@@ -107,17 +107,18 @@ $app->post('/watchupdate', function() use ($app, $db){
     //pull last entry records for users
     $sql = "SELECT * FROM users WHERE user=:user ORDER BY time DESC LIMIT 1";
     $query = $db->prepare($sql);
-    $query->execute(array("user"=>:$user));
+    $query->execute(array(":user"=>$user));
 
     $results = $query->fetch(PDO::FETCH_ASSOC);
 
+    // Checks if the user's location has changed
     if (abs($results['latitude']-$latitude) > 0.01 || abs($results['longitude'] - $longitude) > 0.01){
+
         // create new entry into users table
         $sql = "INSERT INTO users (user, latitude, longitude, time) VALUES (:user, :latitude, :longitude, :time)";
         $insert = $db->prepare($sql);
         $insert->execute(array(":user"=>$user, ":latitude"=>$latitude, ":longitude"=>$longitude, ":time"=>$unixTime));
 
-        //return the correct tag information
        
         $highLat = $latitude+1.01;
         $lowLat = $latitude-1.01;
@@ -125,22 +126,28 @@ $app->post('/watchupdate', function() use ($app, $db){
         $highLong = $longitude+1.01;
         $lowLong = $longitude-1.01;
 
+        //return tags within a radius
         $sql = "SELECT * FROM tags WHERE latitude BETWEEN ".$lowLat." AND ".$highLat
                                 . " AND longitude BETWEEN ".$lowLong." AND ".$highLong
-                                . " AND type='Custom'";
+                                . " AND type!='Fire Hydrant'";
         $query = $db->prepare($sql);
         $query->execute();
 
-        $row = $query->fetch(PDO::FETCH_ASSOC);
-
-        $response = json_encode(array("update"=>1, "title"=>"Notes for ".$row['address'], "note"=>"- [".$row['type']."] ".$row['note']."\n "));
-        var_dump($response);
+        $noteString = "";
+        while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
+           $noteString.= "- [".$row['type']."] ".$row['note']."\n ";
+        }
+        // send watch response to indicate new custom tags
+        $response = json_encode(array("update"=>1, "note"=>$noteString));
+        echo $response;
     
 
 
     } else {
         // no significant location change
-        echo "not significant move";
+        $response = json_encode(array("update"=>0));
+        echo $response;
+
     };
 
     
@@ -257,6 +264,15 @@ $app->post('/status', function () use ($app, $db) {
     echo json_encode(array("status"=>"done"));
 
 });
+
+
+
+
+
+
+
+
+
 
 $app->get('/recent/:user', function($user) use ($app, $db) {
     $sql = "SELECT b.name, b.description, b.progressStep, s.post_time FROM status s INNER JOIN beacon b ON s.beacon_id = b.beacon_id WHERE s.patient_id = :user ORDER BY s.post_time DESC LIMIT 1";
