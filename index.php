@@ -43,11 +43,24 @@ $app->post('/createNote', function() use ($app, $db){
     $type = $_POST['type'];
     $note = $_POST['note'];
 
-    $sql = "INSERT INTO tags (latitude, longitude, type, note) VALUES (:latitude, :longitude, :type, :note)";
-    $insert = $db->prepare($sql);
-    $insert->execute(array(":latitude"=>$latitude, ":longitude"=>$longitude, ":type"=>$type, ":note"=>$note));
+   
+    $output = file_get_contents('http://nominatim.openstreetmap.org/reverse?format=json&lat='.$latitude.'&lon='.$longitude.'&zoom=18&addressdetails=1'); 
 
-    echo "success";
+    $res = json_decode($output);
+
+    var_dump($res, true);
+
+    $road = $res->address->road;
+
+    $city = $res->address->city;
+
+    $address = $road.", ".$city;
+
+
+    $sql = "INSERT INTO tags (latitude, longitude, type, note, address) VALUES (:latitude, :longitude, :type, :note, :address)";
+    $insert = $db->prepare($sql);
+    $insert->execute(array(":latitude"=>$latitude, ":longitude"=>$longitude, ":type"=>$type, ":note"=>$note, ":address"=>$address));
+
 
 });
 
@@ -89,9 +102,48 @@ $app->post('/watchupdate', function() use ($app, $db){
 
     $unixTime = Time();
 
-    $sql = "INSERT INTO users (user, latitude, longitude, time) VALUES (:user, :latitude, :longitude, :time)";
-    $insert = $db->prepare($sql);
-    $insert->execute(array(":user"=>$user, ":latitude"=>$latitude, ":longitude"=>$longitude, ":time"=>$unixTime));
+   
+
+    //pull last entry records for users
+    $sql = "SELECT * FROM users WHERE user=:user ORDER BY time DESC LIMIT 1";
+    $query = $db->prepare($sql);
+    $query->execute(array("user"=>:$user));
+
+    $results = $query->fetch(PDO::FETCH_ASSOC);
+
+    if (abs($results['latitude']-$latitude) > 0.01 || abs($results['longitude'] - $longitude) > 0.01){
+        // create new entry into users table
+        $sql = "INSERT INTO users (user, latitude, longitude, time) VALUES (:user, :latitude, :longitude, :time)";
+        $insert = $db->prepare($sql);
+        $insert->execute(array(":user"=>$user, ":latitude"=>$latitude, ":longitude"=>$longitude, ":time"=>$unixTime));
+
+        //return the correct tag information
+       
+        $highLat = $latitude+1.01;
+        $lowLat = $latitude-1.01;
+
+        $highLong = $longitude+1.01;
+        $lowLong = $longitude-1.01;
+
+        $sql = "SELECT * FROM tags WHERE latitude BETWEEN ".$lowLat." AND ".$highLat
+                                . " AND longitude BETWEEN ".$lowLong." AND ".$highLong
+                                . " AND type='Custom'";
+        $query = $db->prepare($sql);
+        $query->execute();
+
+        $row = $query->fetch(PDO::FETCH_ASSOC);
+
+        $response = json_encode(array("update"=>1, "title"=>"Notes for ".$row['address'], "note"=>"- [".$row['type']."] ".$row['note']."\n "));
+        var_dump($response);
+    
+
+
+    } else {
+        // no significant location change
+        echo "not significant move";
+    };
+
+    
 });
 
 $app->get('/login', function() use ($app){
