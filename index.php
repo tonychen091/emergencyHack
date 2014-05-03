@@ -88,6 +88,8 @@ $app->get('/getAll', function() use ($app, $db){
 
     $results = array();
     while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
+        $checkInTime = $row['time'];
+        $row['time'] = time() - $checkInTime;
         array_push($results, $row);
     }
     $response['users'] = $results;
