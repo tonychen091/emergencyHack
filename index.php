@@ -148,7 +148,7 @@ $app->post('/watchupdate', function() use ($app, $db){
         //return tags within a radius
         $sql = "SELECT * FROM tags WHERE latitude BETWEEN ".$lowLat." AND ".$highLat
                                 . " AND longitude BETWEEN ".$lowLong." AND ".$highLong
-                                . " AND type!='Fire Hydrant'";
+                                . " AND type!='Fire Hydrant' LIMIT 2";
         $query = $db->prepare($sql);
         $query->execute();
 
