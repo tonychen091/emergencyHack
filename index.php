@@ -66,18 +66,10 @@ $app->post('/createNote', function() use ($app, $db){
 });
 
 //gets notes close to long and lat
-$app->get('/getNotes', function() use ($app, $db){
-    $latitude  =  $_GET["lat"];
-    $longitude =  $_GET['long'];
+$app->get('/getAll', function() use ($app, $db){
 
-    $highLat = $latitude+0.001;
-    $lowLat = $latitude-0.001;
-
-    $highLong = $longitude+0.001;
-    $lowLong = $longitude-0.001;
-
-    $sql = "SELECT * FROM tags WHERE latitude BETWEEN ".$lowLat." AND ".$highLat
-                            . " AND longitude BETWEEN ".$lowLong." AND ".$highLong;
+    $response = array();
+    $sql = "SELECT * FROM tags";
     $query = $db->prepare($sql);
     $query->execute();
 
@@ -86,11 +78,22 @@ $app->get('/getNotes', function() use ($app, $db){
         array_push($results, $row);
     }
 
-    echo print_r($results);
+    $response['tags'] = $results;
+
+    $sql = "SELECT * FROM users";
+    $query = $db->prepare($sql);
+    $query->execute();
+
+    $results = array();
+    while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
+        array_push($results, $row);
+    }
+    $response['users'] = $results;
+
 
     $app->response->headers->set('Content-Type', 'application/json');
 
-    echo print_r(json_encode($results),true);
+    echo json_encode($response);
 
 });
 
@@ -102,7 +105,7 @@ $app->post('/watchupdate', function() use ($app, $db){
     $user = $_POST['user'];
     if($_POST['force'] == "true"){
         $manual = True;
-    }
+    } 
 
     $unixTime = Time();
 
