@@ -35,6 +35,21 @@ $app->get('/', function() use ($app, $db){
     echo print_r($results);
 });
 
+
+$app->post('/createNote', function() use ($app, $db){
+
+    $latitude = $_POST['latitude'];
+    $longitude = $_POST['longitude'];
+    $type = $_POST['type'];
+    $note = $_POST['note'];
+
+    $sql = "INSERT INTO tags (latitude, longitude, type, note) VALUES (:latitude, :longitude, :type, :note)";
+    $insert = $db->prepare($sql);
+    $insert->execute(array(":latitude"=>$latitude, ":longitude"=>$longitude, ":type"=>$type, ":note"=>$note));
+
+    echo "success";
+
+});
 $app->get('/getNotes', function() use ($app, $db){
     $latitude  =  $_GET["lat"];
     $longitude =  $_GET['long'];
@@ -57,6 +72,22 @@ $app->get('/getNotes', function() use ($app, $db){
 
     echo print_r($results);
 
+    $app->response->headers->set('Content-Type', 'application/json');
+
+    echo print_r(json_encode($results),true);
+
+});
+
+$app->post('/watchupdate', function() use ($app, $db){
+    $latitude = $_POST['latitude'];
+    $longitude = $_POST['longitude'];
+    $user = $_POST['user'];
+
+    $unixTime = Time();
+
+    $sql = "INSERT INTO users (user, latitude, longitude, time) VALUES (:user, :latitude, :longitude, :time)";
+    $insert = $db->prepare($sql);
+    $insert->execute(array(":user"=>$user, ":latitude"=>$latitude, ":longitude"=>$longitude, ":time"=>$unixTime));
 });
 
 $app->get('/login', function() use ($app){
