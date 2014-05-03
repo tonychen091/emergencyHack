@@ -35,7 +35,7 @@ $app->get('/', function() use ($app, $db){
     echo print_r($results);
 });
 
-
+//creates a new note
 $app->post('/createNote', function() use ($app, $db){
 
     $latitude = $_POST['latitude'];
@@ -50,6 +50,8 @@ $app->post('/createNote', function() use ($app, $db){
     echo "success";
 
 });
+
+//gets notes close to long and lat
 $app->get('/getNotes', function() use ($app, $db){
     $latitude  =  $_GET["lat"];
     $longitude =  $_GET['long'];
@@ -78,6 +80,8 @@ $app->get('/getNotes', function() use ($app, $db){
 
 });
 
+
+//creates a new user watch request
 $app->post('/watchupdate', function() use ($app, $db){
     $latitude = $_POST['latitude'];
     $longitude = $_POST['longitude'];
