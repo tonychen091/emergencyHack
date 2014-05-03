@@ -3,24 +3,60 @@ require 'vendor/autoload.php';
 
 $app = new \Slim\Slim();
 
+
+
 // make DB connection
 
-$username = "b05bccbae358e4";
-$password = "7aa40359";
+$username = "be3ab62935a0b7";
+$password = "ad817098";
 $server = "us-cdbr-east-05.cleardb.net";
-$db = "heroku_74679175fcd99e5";
+$db = "heroku_2e0461842e9755c";
 
 
 
 try {
     $db = new PDO("mysql:host=" . $server . ";dbname=" . $db, $username, $password);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
 } catch(PDOException $e) {
     echo 'ERROR: ' . $e->getMessage();
 }
 
-$app->get('/', function() use ($app){
-    echo "hi";
+$app->get('/', function() use ($app, $db){
+    $sql = "SELECT * FROM tags";
+    $query = $db->prepare($sql);
+    $query->execute();
+
+    $results = array();
+    while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
+        array_push($results, $row);
+    }
+
+    echo print_r($results);
+});
+
+$app->get('/getNotes', function() use ($app, $db){
+    $latitude  =  $_GET["lat"];
+    $longitude =  $_GET['long'];
+
+    $highLat = $latitude+0.001;
+    $lowLat = $latitude-0.001;
+
+    $highLong = $longitude+0.001;
+    $lowLong = $longitude-0.001;
+
+    $sql = "SELECT * FROM tags WHERE latitude BETWEEN ".$lowLat." AND ".$highLat
+                            . " AND longitude BETWEEN ".$lowLong." AND ".$highLong;
+    $query = $db->prepare($sql);
+    $query->execute();
+
+    $results = array();
+    while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
+        array_push($results, $row);
+    }
+
+    echo print_r($results);
+
 });
 
 $app->get('/login', function() use ($app){
