@@ -22,6 +22,16 @@ try {
     echo 'ERROR: ' . $e->getMessage();
 }
 
+
+
+
+//test commint
+
+
+
+
+
+
 $app->get('/', function() use ($app, $db){
     $sql = "SELECT * FROM tags";
     $query = $db->prepare($sql);
